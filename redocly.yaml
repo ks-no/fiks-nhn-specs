@@ -1,5 +1,0 @@
-extends:
-  - recommended
-lint:
-  ignore:
-    - ./specs/adresseregister-spec.json
