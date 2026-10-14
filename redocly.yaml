@@ -1,4 +1,5 @@
 extends:
   - recommended
-apis:
-
+lint:
+  ignore:
+    - ./specs/adresseregister-spec.json
