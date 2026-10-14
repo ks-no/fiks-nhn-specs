@@ -1,8 +1,4 @@
 extends:
   - recommended
 apis:
-  adresseregister-api@v1:
-    root: ./specs/adresseregister-spec.json
-    theme:
-      openapi: {}
 
