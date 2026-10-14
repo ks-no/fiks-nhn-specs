@@ -1,0 +1,7 @@
+extends:
+  - recommended
+apis:
+
+lint:
+  ignore:
+    - "**/adresseregister-spec.json"
