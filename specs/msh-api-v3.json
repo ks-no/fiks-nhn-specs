@@ -1,0 +1,3481 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "MSH API v3",
+    "description": "Meldingstjener Rest API. Default API version.",
+    "version": "v3"
+  },
+  "paths": {
+    "/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Get an array of notifications from a specific offset",
+        "operationId": "GetNotificationsV3",
+        "parameters": [
+          {
+            "name": "HerIds",
+            "in": "query",
+            "description": "HER-ids (one or more) to fetch notifications for. Max 1500 HER-ids can be provided in one request.",
+            "required": true,
+            "schema": {
+              "maxItems": 1500,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": [
+                42,
+                1337
+              ]
+            },
+            "example": [
+              42,
+              1337
+            ]
+          },
+          {
+            "name": "NotificationsToFetch",
+            "in": "query",
+            "description": "How many notifications to fetch (default = 100) (If set, must be a number between 1 and 1000).",
+            "schema": {
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "example": 10
+            },
+            "example": 10
+          },
+          {
+            "name": "Offset",
+            "in": "query",
+            "description": "Offset of the last notification received from this endpoint, ensures only newer notifications is returned",
+            "required": true,
+            "schema": {
+              "maximum": 9.223372036854776E+18,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64",
+              "example": 42
+            },
+            "example": 42
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetNotificationsResponse"
+                },
+                "example": {
+                  "notifications": [
+                    {
+                      "notificationId": "17aaeaa7-fa1e-4b60-a8e9-bdc31718dfc9",
+                      "relatedMessageId": "0d5c8d05-ab57-4b2b-b480-c46c69cdf789",
+                      "type": "NewMessage",
+                      "notificationReceiverHerId": 6789,
+                      "notificationTriggeredByHerId": 9876,
+                      "description": "New message received (EPIKRISE).",
+                      "createdAt": "2026-04-14T06:17:00+00:00",
+                      "offset": 1234
+                    },
+                    {
+                      "notificationId": "c5e6b600-78ef-4d2a-ad5e-e4b64e3f5230",
+                      "relatedMessageId": "aa2fb53f-8454-4eed-9c13-30f7e61fee23",
+                      "type": "RefusedMessage",
+                      "notificationReceiverHerId": 1234,
+                      "notificationTriggeredByHerId": 5678,
+                      "description": "Receiver does not support the message type. (EPIKRISE).",
+                      "createdAt": "2026-04-14T06:15:20+00:00",
+                      "offset": 1237
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/stream": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Stream notifications using SSE, from a specific offset",
+        "operationId": "StreamNotificationsV3",
+        "parameters": [
+          {
+            "name": "HerIds",
+            "in": "query",
+            "description": "HER-ids (one or more) to fetch notifications for. Max 1500 HER-ids can be provided in one request.",
+            "required": true,
+            "schema": {
+              "maxItems": 1500,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": [
+                42,
+                1337
+              ]
+            },
+            "example": [
+              42,
+              1337
+            ]
+          },
+          {
+            "name": "Offset",
+            "in": "query",
+            "description": "Offset to start streaming from. If not provided, it will start from the end of the stream.",
+            "schema": {
+              "maximum": 9.223372036854776E+18,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64",
+              "example": 42
+            },
+            "example": 42
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSseItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/unread": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Get an array of all unread notifications",
+        "operationId": "GetUnreadNotificationsV3",
+        "parameters": [
+          {
+            "name": "HerIds",
+            "in": "query",
+            "description": "HER-ids (one or more) to fetch notifications for. Max 1500 HER-ids can be provided in one request.",
+            "required": true,
+            "schema": {
+              "maxItems": 1500,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": [
+                42,
+                1337
+              ]
+            },
+            "example": [
+              42,
+              1337
+            ]
+          },
+          {
+            "name": "NotificationsToFetch",
+            "in": "query",
+            "description": "How many notifications to fetch (default = 100) (If set, must be a number between 1 and 1000).",
+            "schema": {
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "example": 10
+            },
+            "example": 10
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUnreadNotificationsResponse"
+                },
+                "example": {
+                  "unreadNotifications": [
+                    {
+                      "notificationId": "17aaeaa7-fa1e-4b60-a8e9-bdc31718dfc9",
+                      "relatedMessageId": "0d5c8d05-ab57-4b2b-b480-c46c69cdf789",
+                      "type": "NewMessage",
+                      "notificationReceiverHerId": 6789,
+                      "notificationTriggeredByHerId": 9876,
+                      "description": "New message received (EPIKRISE).",
+                      "createdAt": "2026-04-14T06:17:00+00:00"
+                    },
+                    {
+                      "notificationId": "c5e6b600-78ef-4d2a-ad5e-e4b64e3f5230",
+                      "relatedMessageId": "aa2fb53f-8454-4eed-9c13-30f7e61fee23",
+                      "type": "RefusedMessage",
+                      "notificationReceiverHerId": 1234,
+                      "notificationTriggeredByHerId": 5678,
+                      "description": "Receiver does not support the message type. (EPIKRISE).",
+                      "createdAt": "2026-04-14T06:15:20+00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/unread/stream": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Stream unread notifications using SSE",
+        "operationId": "StreamUnreadNotificationsV3",
+        "parameters": [
+          {
+            "name": "HerIds",
+            "in": "query",
+            "description": "HER-ids (one or more) to fetch notifications for. Max 1500 HER-ids can be provided in one request.",
+            "required": true,
+            "schema": {
+              "maxItems": 1500,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": [
+                42,
+                1337
+              ]
+            },
+            "example": [
+              42,
+              1337
+            ]
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadNotificationSseItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/delete": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Delete an array of notifications",
+        "operationId": "DeleteNotificationsV3",
+        "parameters": [
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DeleteNotificationsRequest"
+                  }
+                ],
+                "description": "Contains fields for deleting notifications."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DeleteNotificationsRequest"
+                  }
+                ],
+                "description": "Contains fields for deleting notifications."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DeleteNotificationsRequest"
+                  }
+                ],
+                "description": "Contains fields for deleting notifications."
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/messages": {
+      "post": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Send a message with business document",
+        "description": "The request has a max limit of 35 MB",
+        "operationId": "PostMessageV3",
+        "parameters": [
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "requestBody": {
+          "description": "Object with business document and metadata",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PostMessageRequest"
+                  }
+                ],
+                "description": "Business document (payload) and metadata for POST on Messages"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PostMessageRequest"
+                  }
+                ],
+                "description": "Business document (payload) and metadata for POST on Messages"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PostMessageRequest"
+                  }
+                ],
+                "description": "Business document (payload) and metadata for POST on Messages"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request - See response for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Authenticated client is not authorized to send message from given HerId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted - Response contains the reference id (AssignedId) of the requested message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostMessageResponse"
+                },
+                "example": {
+                  "id": "cc9264fd-8a53-4f7c-9df5-aa32d235e342"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages/{id}": {
+      "get": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Get message with given id",
+        "operationId": "GetMessageV3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of message, as received from /notifications/ endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request - See response for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Authenticated client is not authorized to access messages with given id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK - Message with given id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMessageResponse"
+                },
+                "example": {
+                  "id": "70104e29-d573-4578-9ac7-1383410fffc3",
+                  "senderHerId": 1234,
+                  "receiverHerIds": [
+                    5678
+                  ],
+                  "businessDocumentId": "ad2a0258-f8d0-46d5-bb37-7aae7a2375f1",
+                  "businessDocumentGenDate": "2026-03-17T10:46:44",
+                  "businessDocumentMsgType": "SVAR_RTG",
+                  "contentType": "application/xml"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - Message with given id could not be found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Requested message not found",
+                  "status": 404,
+                  "detail": "No message with Id C409B887-6895-4C43-AD11-40DA2F1A4E79 found",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1010,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages/{id}/business-document": {
+      "get": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Get business document for message",
+        "description": "This endpoint supports response compression. Set _Accept-Encoding: gzip_ in the request header for compressed response with gzip.",
+        "operationId": "GetBusinessDocumentV3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of message, as received from /notifications/ endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request - See response for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Authenticated client is not authorized to access message with given id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK - Business document for message with given id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetBusinessDocumentResponse"
+                },
+                "example": {
+                  "businessDocument": "\"PD94bWw+[...]\"",
+                  "contentType": "application/xml",
+                  "contentTransferEncoding": "base64"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - Message with given id could not be found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Requested message not found",
+                  "status": 404,
+                  "detail": "No message with Id C409B887-6895-4C43-AD11-40DA2F1A4E79 found",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1010,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Requested message not found",
+                  "status": 404,
+                  "detail": "No message with Id C409B887-6895-4C43-AD11-40DA2F1A4E79 found",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1010,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Requested message not found",
+                  "status": 404,
+                  "detail": "No message with Id C409B887-6895-4C43-AD11-40DA2F1A4E79 found",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1010,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages/{id}/status": {
+      "get": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Get message status",
+        "description": "Getting status is allowed for the sender communication party only! When id refers to an application receipt, only StatusInfo.Acknowledged is relevant",
+        "operationId": "GetStatusV3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of message, as received from /notifications/ endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request - See response for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Authenticated client is not authorized to access message with given id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK - A list with statuses for message with given id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetStatusResponse"
+                },
+                "example": {
+                  "statusList": [
+                    {
+                      "receiverHerId": 42,
+                      "transportDeliveryState": "Acknowledged",
+                      "sent": true,
+                      "apprecInfo": {
+                        "appRecStatus": "Ok",
+                        "appRecErrorList": null,
+                        "appRecId": "0d5fa870-b089-4a26-b844-d3868b5f376c"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - Message with given id could not be found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Requested message not found",
+                  "status": 404,
+                  "detail": "No message with Id C409B887-6895-4C43-AD11-40DA2F1A4E79 found",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1010,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages/{id}/apprec": {
+      "post": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Generate and send an application receipt for a message",
+        "description": "AppRecStatus must be 1 ('OK'), 2 ('Avvist') or 3 ('Ok, feil i delmelding')\n\nAppRecErrorList must be populated if AppRecResult is 'Avvist'\n\nAppRecErrorList.Details is optional\n",
+        "operationId": "PostAppRecV3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the message for which to send application receipt, as received from /notifications/ endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "requestBody": {
+          "description": "Application receipt result, potential errors and metadata",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PostAppRecRequest"
+                  }
+                ],
+                "description": "Information about the application receipt"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PostAppRecRequest"
+                  }
+                ],
+                "description": "Information about the application receipt"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PostAppRecRequest"
+                  }
+                ],
+                "description": "Information about the application receipt"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request - See response for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Authenticated client is not authorized to send application receipts for message with given Id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostApprecResponse"
+                },
+                "example": {
+                  "id": "e9121110-d9e9-4980-8f65-66039d47ea0b"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - Message with given id could not be found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Requested message not found",
+                  "status": 404,
+                  "detail": "No message with Id C409B887-6895-4C43-AD11-40DA2F1A4E79 found",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1010,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages/{id}/downloaded": {
+      "put": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Mark message as downloaded",
+        "operationId": "MarkMessageAsDownloadedV3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of message, as received from /notifications/ endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "requestBody": {
+          "description": "Metadata with ReceiverHerId referencing the subject",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MarkAsDownloadedRequest"
+                  }
+                ],
+                "description": "Marks a message as downloaded"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MarkAsDownloadedRequest"
+                  }
+                ],
+                "description": "Marks a message as downloaded"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MarkAsDownloadedRequest"
+                  }
+                ],
+                "description": "Marks a message as downloaded"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request - See response for details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Authenticated client is not authorized to access message with given id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content - Message with given id has been marked as downloaded"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Requested message not found",
+                  "status": 404,
+                  "detail": "No message with Id C409B887-6895-4C43-AD11-40DA2F1A4E79 found",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1010,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mshconfigurations": {
+      "put": {
+        "tags": [
+          "Msh configurations"
+        ],
+        "operationId": "SetMshConfigurations",
+        "parameters": [
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SetMshConfigurationsRequest"
+                  }
+                ],
+                "description": "Represents the request body for creating or updating one or more MSH configurations."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SetMshConfigurationsRequest"
+                  }
+                ],
+                "description": "Represents the request body for creating or updating one or more MSH configurations."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SetMshConfigurationsRequest"
+                  }
+                ],
+                "description": "Represents the request body for creating or updating one or more MSH configurations."
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Msh configurations"
+        ],
+        "operationId": "DeleteMshConfigurations",
+        "parameters": [
+          {
+            "name": "HerIds",
+            "in": "query",
+            "description": "Collection of herids for which configurartions to delete",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "One or more authorization requirements did not succeed",
+                  "status": 403,
+                  "detail": "Not authorized for HerId(s): 1234.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1202,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "HerId is explicit locked by another authorized client.",
+                  "status": 423,
+                  "detail": "HerId:4295857 is locked by client with id e63c94fa-0099-4352-8a32-4507fd7b1784.",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1210,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Authentication failed",
+                  "status": 401,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNK076R5C3TB:00000001",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2026-04-24T13:56:30"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ping": {
+      "get": {
+        "tags": [
+          "Diagnostics"
+        ],
+        "summary": "Connection test endpoint",
+        "operationId": "PingV3",
+        "parameters": [
+          {
+            "name": "api-version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "nhn-source-system",
+            "in": "header",
+            "description": "Name and version for the client system",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "MyApplication, v1.337"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "Invalid API model provided",
+                  "status": 400,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 1001,
+                  "requestId": "0HNJOTQQGQH89:00000001",
+                  "validationErrors": [
+                    "postMessageRequest, The postMessageRequest field is required."
+                  ],
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MshApiProblemDetails"
+                },
+                "example": {
+                  "title": "An unexpected error occurred",
+                  "status": 500,
+                  "detail": "",
+                  "instance": "[Path to endpoint]",
+                  "errorCode": 0,
+                  "requestId": "0HNJL6GRNC7FM:00000017",
+                  "stackTrace": "[StackTrace] (not set in Prod)",
+                  "timestamp": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PingResponse"
+                },
+                "example": {
+                  "response": "Pong",
+                  "timestampUtc": "2025-08-18T00:33:00"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PingResponse"
+                },
+                "example": {
+                  "response": "Pong",
+                  "timestampUtc": "2025-08-18T00:33:00"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PingResponse"
+                },
+                "example": {
+                  "response": "Pong",
+                  "timestampUtc": "2025-08-18T00:33:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppRecError": {
+        "required": [
+          "details",
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "Application receipt error code.",
+            "nullable": true,
+            "example": "E10"
+          },
+          "details": {
+            "type": "string",
+            "description": "Details about the error.",
+            "nullable": true,
+            "example": ""
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of error code following standards.",
+            "nullable": true
+          },
+          "oid": {
+            "type": "string",
+            "description": "OID of the code standard providing the error code.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Information about an error in the application receipt."
+      },
+      "AppRecStatus": {
+        "enum": [
+          "Ok",
+          "Rejected",
+          "OkErrorInMessagePart"
+        ],
+        "type": "string",
+        "description": "Application receipt status. Values taken from HIS 80415 / OID=8258.\n\n- Ok = \"Ok\"\n\n- Rejected = \"Avvist\"\n\n- OkErrorInMessagePart = \"Ok, feil i delmelding\" NB! Not supported as of this writing.\n"
+      },
+      "AppRecTransportMetadataOverrides": {
+        "type": "object",
+        "properties": {
+          "transportSenderHerId": {
+            "type": "integer",
+            "description": "If set, the sender addressation is overridden. Else, the sender addressation will mirror the received business document.",
+            "format": "int32",
+            "nullable": true
+          },
+          "transportReceiverHerId": {
+            "type": "integer",
+            "description": "If set, the receiver addressation is overridden. Else, the receiver addressation will mirror the received business document.",
+            "format": "int32",
+            "nullable": true
+          },
+          "cpaId": {
+            "type": "string",
+            "description": "If not set, value according to HIS 1037:2011 will be generated.",
+            "nullable": true
+          },
+          "conversationId": {
+            "type": "string",
+            "description": "If not set, value according to HIS 1037:2011 will be generated.",
+            "nullable": true
+          },
+          "service": {
+            "type": "string",
+            "description": "If not set, value according to HIS 1209:2018 will be generated.",
+            "nullable": true
+          },
+          "serviceType": {
+            "type": "string",
+            "description": "If not set, value according to HIS 1209:2018 will be generated.",
+            "nullable": true
+          },
+          "action": {
+            "type": "string",
+            "description": "If not set, value will be resolved from BusinessDocument.",
+            "nullable": true
+          },
+          "senderRole": {
+            "type": "string",
+            "description": "If not set, value according to HIS 1209:2018 will be generated.",
+            "nullable": true
+          },
+          "receiverRole": {
+            "type": "string",
+            "description": "If not set, value according to HIS 1209:2018 will be generated.",
+            "nullable": true
+          },
+          "middlewareName": {
+            "type": "string",
+            "description": "Some systems use a middleware between application and messagehandler. Name can be provided here. (HIS 1210:2018)",
+            "nullable": true
+          },
+          "middlewareVersion": {
+            "type": "string",
+            "description": "Some systems use a middleware between application and messagehandler. Version can be provided here. (HIS 1210:2018)",
+            "nullable": true
+          },
+          "compressPayload": {
+            "type": "boolean",
+            "description": "Some systems expect the businessdocument to be compressed before encrypted and added to Ebxml.\nWhen set to 'true' the payload will be compressed using the Gzip algorithm",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Information to be used for the EbXml generation for AppRec messages - overrides properties otherwise set automatically according to standards.\n\nOnly needs to be used if you require an exchange that exceeds (is in violation of) the standards."
+      },
+      "ApprecInfo": {
+        "type": "object",
+        "properties": {
+          "appRecStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AppRecStatus"
+              }
+            ],
+            "description": "Application receipt status. Values taken from HIS 80415 / OID=8258.",
+            "format": "Enumeration",
+            "nullable": true
+          },
+          "appRecErrorList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppRecError"
+            },
+            "description": "List with errors in the application receipt, if any",
+            "nullable": true
+          },
+          "appRecId": {
+            "type": "string",
+            "description": "The id of the received application receipt, if it exists.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeleteNotificationsRequest": {
+        "required": [
+          "notificationIds"
+        ],
+        "type": "object",
+        "properties": {
+          "notificationIds": {
+            "maxItems": 1000,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Notification IDs to delete. Cannot contain more than 1000 Notifications.",
+            "example": "[17aaeaa7-fa1e-4b60-a8e9-bdc31718dfc9, c5e6b600-78ef-4d2a-ad5e-e4b64e3f5230]"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Contains fields for deleting notifications."
+      },
+      "DeliveryState": {
+        "enum": [
+          "Unconfirmed",
+          "Acknowledged",
+          "Rejected",
+          "Abandoned"
+        ],
+        "type": "string",
+        "description": "Value 'Unconfirmed': Transport is not confirmed.\nValue 'Acknowledged': Transport is confirmed. Equivalent to 'Acknowledgement' without severe 'eb:ErrorList/eb:HighestSeverity'.\nValue 'Rejected': Transport is rejected. Equivalient to 'MessageError' with 'eb:ErrorList/eb:HighestSeverity'=\"Error\".\nValue 'Abandoned': Message has been sent and then resent to EDI-receiver, but no transport receipt has been received."
+      },
+      "GetBusinessDocumentResponse": {
+        "required": [
+          "businessDocument",
+          "contentTransferEncoding",
+          "contentType"
+        ],
+        "type": "object",
+        "properties": {
+          "businessDocument": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The business document - Payload.\n\nThe BusinessDocument is the raw bytes of the payload encoded with ContentTransferEncoding",
+            "example": "\"PD94bWw+[...]\""
+          },
+          "contentType": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Content type for the business document.\n\nMost payloads should be xml",
+            "example": "\"application/xml\""
+          },
+          "contentTransferEncoding": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Content transfer encoding for the business document.\n\nPayload is always base64-encoded.",
+            "example": "\"base64\""
+          }
+        },
+        "additionalProperties": false,
+        "description": "Business document (payload) and metadata returned from GET/business-document on Messages"
+      },
+      "GetMessageResponse": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Internal id of message. To be used when using messages/{id}/*-endpoints.\n\nWill always be a valid Guid",
+            "example": "5f5e94d5-d908-476b-a172-a241c52eddb6"
+          },
+          "senderHerId": {
+            "type": "integer",
+            "description": "HER-id of sender.",
+            "format": "int32",
+            "nullable": true,
+            "example": 1111
+          },
+          "receiverHerIds": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "HER-ids of receivers.",
+            "nullable": true,
+            "example": 1337
+          },
+          "businessDocumentId": {
+            "type": "string",
+            "description": "MsgId in business document.",
+            "nullable": true,
+            "example": "9f1c892b-4341-4239-b627-83b7a1eb65ab"
+          },
+          "businessDocumentGenDate": {
+            "type": "string",
+            "description": "GenDate in business document.",
+            "nullable": true,
+            "example": "2024-09-03T07:55:13"
+          },
+          "businessDocumentMsgType": {
+            "type": "string",
+            "description": "MsgType in business document.",
+            "nullable": true,
+            "example": "SVAR_RTG"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "Content type for the business document",
+            "nullable": true,
+            "example": "\"application/xml\""
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetNotificationsResponse": {
+        "required": [
+          "notifications"
+        ],
+        "type": "object",
+        "properties": {
+          "notifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Notification"
+            },
+            "description": "Array of notifications."
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetStatusResponse": {
+        "type": "object",
+        "properties": {
+          "statusList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatusInfo"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetUnreadNotificationsResponse": {
+        "required": [
+          "unreadNotifications"
+        ],
+        "type": "object",
+        "properties": {
+          "unreadNotifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UnreadNotification"
+            },
+            "description": "Array of unread notifications."
+          }
+        },
+        "additionalProperties": false
+      },
+      "MarkAsDownloadedRequest": {
+        "required": [
+          "receiverHerId"
+        ],
+        "type": "object",
+        "properties": {
+          "receiverHerId": {
+            "type": "integer",
+            "description": "The HER-id of the receiver/copy receiver of the business document",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Marks a message as downloaded"
+      },
+      "MessageTransportMetadataOverrides": {
+        "type": "object",
+        "properties": {
+          "cpaId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "If not set, value according to HIS 1037:2011 will be generated.",
+            "nullable": true
+          },
+          "conversationId": {
+            "minLength": 32,
+            "type": "string",
+            "description": "If not set, value according to HIS 1037:2011 will be generated.",
+            "nullable": true
+          },
+          "service": {
+            "minLength": 1,
+            "type": "string",
+            "description": "If not set, value according to HIS 1209:2018 will be generated.",
+            "nullable": true
+          },
+          "serviceType": {
+            "minLength": 1,
+            "type": "string",
+            "description": "If not set, value according to HIS 1209:2018 will be generated.",
+            "nullable": true
+          },
+          "action": {
+            "minLength": 1,
+            "type": "string",
+            "description": "If not set, value will be resolved from BusinessDocument.",
+            "nullable": true
+          },
+          "senderRole": {
+            "minLength": 1,
+            "type": "string",
+            "description": "If not set, value according to HIS 1209:2018 will be generated.",
+            "nullable": true
+          },
+          "receiverRole": {
+            "minLength": 1,
+            "type": "string",
+            "description": "If not set, value according to HIS 1209:2018 will be generated.",
+            "nullable": true
+          },
+          "middlewareName": {
+            "type": "string",
+            "description": "Some systems use a middleware between application and messagehandler. Name can be provided here. (HIS 1210:2018)",
+            "nullable": true
+          },
+          "middlewareVersion": {
+            "type": "string",
+            "description": "Some systems use a middleware between application and messagehandler. Version can be provided here. (HIS 1210:2018)",
+            "nullable": true
+          },
+          "compressPayload": {
+            "type": "boolean",
+            "description": "Some systems expect the businessdocument to be compressed before encrypted and added to Ebxml.\nWhen set to 'true' the payload will be compressed using the Gzip algorithm",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Information to be used for EbXml generation - overrides properties otherwise set automatically according to standards.\n\nOnly needs to be used if you require an exchange that exceeds (is in violation of) the standards."
+      },
+      "MshApiProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          },
+          "errorCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requestId": {
+            "type": "string",
+            "nullable": true
+          },
+          "validationErrors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "stackTrace": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {}
+      },
+      "MshConfiguration": {
+        "required": [
+          "herId",
+          "receiveNotificationChannel"
+        ],
+        "type": "object",
+        "properties": {
+          "herId": {
+            "type": "integer",
+            "description": "The HerId this configuration applies to.",
+            "format": "int32"
+          },
+          "receiveNotificationChannel": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReceiveNotificationChannel"
+              }
+            ],
+            "description": "Channel where messages are received.",
+            "format": "Enumeration"
+          },
+          "clientLocked": {
+            "type": "boolean",
+            "description": "Indicates that the requesting client is the sole consumer and producer of messages for this HerId. Others will be forbidden.",
+            "nullable": true
+          },
+          "rejectMessageFilters": {
+            "type": "object",
+            "properties": {
+              "MessageFunction": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "description": "Indicates which indicators that result in messages being rejected by the MSH. If null, then no messages are rejected.\n\n- MessageFunction = 1 - Correspond to values from \"Helsedirektoratet kodeverk 8279 - Meldingens funksjon\".",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Notification": {
+        "required": [
+          "notificationId",
+          "notificationReceiverHerId",
+          "offset",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "notificationId": {
+            "type": "string",
+            "description": "The id of this Notification.",
+            "example": "\"17aaeaa7-fa1e-4b60-a8e9-bdc31718dfc9\""
+          },
+          "relatedMessageId": {
+            "type": "string",
+            "description": "The id of the message related to this notification.",
+            "nullable": true,
+            "example": "\"c6f69d9c-c0ca-4843-864a-76dbe1de55c5\""
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NotificationType"
+              }
+            ],
+            "description": "Notification type.",
+            "example": "\"UnreadMessage\""
+          },
+          "notificationReceiverHerId": {
+            "type": "integer",
+            "description": "Notification receiver.",
+            "format": "int32"
+          },
+          "notificationTriggeredByHerId": {
+            "type": "integer",
+            "description": "Which communication party's action triggered this notification.",
+            "format": "int32",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the notification.",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Datetime offset when the notification was created.",
+            "format": "date-time"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Notification offset",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NotificationSseItem": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Notification"
+              }
+            ],
+            "nullable": true
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reconnectionInterval": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NotificationType": {
+        "enum": [
+          "NewMessage",
+          "RefusedMessage",
+          "MessageSentStateUpdated",
+          "MessageApprecInfoUpdated",
+          "MessageDeliveryStateUpdated"
+        ],
+        "type": "string"
+      },
+      "PingResponse": {
+        "required": [
+          "response"
+        ],
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string"
+          },
+          "timestampUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PostAppRecRequest": {
+        "required": [
+          "applicationName",
+          "applicationVersion",
+          "appRecSenderHerId",
+          "appRecStatus"
+        ],
+        "type": "object",
+        "properties": {
+          "appRecSenderHerId": {
+            "type": "integer",
+            "description": "The HerID of the sender to be used in generating the AppRec (receiver of original message). Used for business document and addressation.",
+            "format": "int32"
+          },
+          "appRecStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AppRecStatus"
+              }
+            ],
+            "description": "The status of the application receipt sent for a received message\n\n1 = Ok, 2 = Avvist, 3 = Ok, feil i delmelding",
+            "format": "Enumeration",
+            "example": "1"
+          },
+          "appRecErrorList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppRecError"
+            },
+            "description": "List of errors in application receipt",
+            "nullable": true
+          },
+          "applicationName": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of application or EPJ. (HIS 1210:2018)",
+            "example": "\"EPJ Front\""
+          },
+          "applicationVersion": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Version of application or EPJ. (HIS 1210:2018)",
+            "example": "\"18.0.8\""
+          },
+          "transportMetadataOverrides": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AppRecTransportMetadataOverrides"
+              }
+            ],
+            "description": "One or more EbXml-properties can be provided if business process has special requirements.\n\nFor most business processes the values can and will be resolved from the required request metadata\nby the server, and therefore does not have to be applied twice.\nCurrent implementation is following 'HIS 1037:2011' and 'HIS 1209:2018'\n",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Information about the application receipt"
+      },
+      "PostApprecResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PostMessageRequest": {
+        "required": [
+          "applicationName",
+          "applicationVersion",
+          "businessDocument",
+          "contentTransferEncoding",
+          "contentType",
+          "messageTypeIdentificator",
+          "receiverHerIds",
+          "senderHerId"
+        ],
+        "type": "object",
+        "properties": {
+          "businessDocument": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The business document - Payload as an encoded byte array.",
+            "example": "\"PD94bWw+[...]\""
+          },
+          "senderHerId": {
+            "type": "integer",
+            "description": "The HerID of the sender to be used in the adressation (envelope).",
+            "format": "int32",
+            "example": 123
+          },
+            "receiverHerIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "The HerIDs of the receivers to be used in the adressation (envelope).",
+            "example": [
+              456,
+              789
+            ]
+          },
+          "contentType": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Content type for the business document bytes. Currently, only 'application/xml' is supported.",
+            "example": "\"application/xml\""
+          },
+          "contentTransferEncoding": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Content transfer encoding for the business document. Currently, only 'base64' is supported.",
+            "example": "\"base64\""
+          },
+          "messageTypeIdentificator": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Identifies the type of business document being sent. Should be from FinnKode 8279.",
+            "example": "\"DIALOG_HELSEFAGLIG\""
+          },
+          "applicationName": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of application or EPJ. (HIS 1210:2018)",
+            "example": "\"EPJ Front\""
+          },
+          "applicationVersion": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Version of application or EPJ. (HIS 1210:2018)",
+            "example": "\"18.0.8\""
+          },
+          "transportMetadataOverrides": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageTransportMetadataOverrides"
+              }
+            ],
+            "description": "One or more EbXml-properties can be provided if business process has special requirements.\n\nFor most business processes the values can and will be resolved from the required request metadata\nby the server, and therefore does not have to be applied twice.\nCurrent implementation is following 'HIS 1037:2011' and 'HIS 1209:2018'\n",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Business document (payload) and metadata for POST on Messages"
+      },
+      "PostMessageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReceiveNotificationChannel": {
+        "enum": [
+          "Api",
+          "Kafka"
+        ],
+        "type": "string",
+        "description": "Receive channel for messages\n\n- Api = 1\n- Kafka = 3 - ONLY VIABLE FOR NHN INTERNAL ACTORS"
+      },
+      "SetMshConfigurationsRequest": {
+        "required": [
+          "configurations"
+        ],
+        "type": "object",
+        "properties": {
+          "configurations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MshConfiguration"
+            },
+            "description": "Collection of MSH configurations to apply."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the request body for creating or updating one or more MSH configurations."
+      },
+      "StatusInfo": {
+        "required": [
+          "receiverHerId",
+          "sent",
+          "transportDeliveryState"
+        ],
+        "type": "object",
+        "properties": {
+          "receiverHerId": {
+            "type": "integer",
+            "description": "The HER-id of the receiver/copy receiver of the business document",
+            "format": "int32"
+          },
+          "transportDeliveryState": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DeliveryState"
+              }
+            ],
+            "description": "Transport delivery state for the message. Refers to whether the transport is successful, not whether the message was accepted by the receiver system.",
+            "format": "Enumeration"
+          },
+          "sent": {
+            "type": "boolean",
+            "description": "Is message sent to receiver."
+          },
+          "apprecInfo": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApprecInfo"
+              }
+            ],
+            "description": "Apprec with status and potential errors from the application receipt\nValue is 'null' if an Apprec has not been received from the receiver.'",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Status information about the message exchange"
+      },
+      "UnreadNotification": {
+        "required": [
+          "notificationId",
+          "notificationReceiverHerId",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "notificationId": {
+            "type": "string",
+            "description": "The id of this Notification.",
+            "example": "\"17aaeaa7-fa1e-4b60-a8e9-bdc31718dfc9\""
+          },
+          "relatedMessageId": {
+            "type": "string",
+            "description": "The id of the message related to this notification.",
+            "nullable": true,
+            "example": "\"c6f69d9c-c0ca-4843-864a-76dbe1de55c5\""
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NotificationType"
+              }
+            ],
+            "description": "Notification type.",
+            "example": "\"UnreadMessage\""
+          },
+          "notificationReceiverHerId": {
+            "type": "integer",
+            "description": "Notification receiver.",
+            "format": "int32"
+          },
+          "notificationTriggeredByHerId": {
+            "type": "integer",
+            "description": "Which communication party's action triggered this notification.",
+            "format": "int32",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the notification.",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Datetime offset when the notification was created.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnreadNotificationSseItem": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UnreadNotification"
+              }
+            ],
+            "nullable": true
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reconnectionInterval": {
+            "type": "string",
+            "format": "date-span",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Notifications"
+    },
+    {
+      "name": "Messages"
+    },
+    {
+      "name": "Msh configurations"
+    },
+    {
+      "name": "Diagnostics"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.tjener.test.melding.nhn.no"
+    }
+  ]
+}
